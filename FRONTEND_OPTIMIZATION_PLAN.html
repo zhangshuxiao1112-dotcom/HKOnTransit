@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HKOnTransit · Frontend Optimization Plan</title><style>
+:root{--ink:#183e3d;--muted:#5d766a;--accent:#087d69;--accent-dark:#04564b;--teal:#0a755d;--teal-light:#ddf4ec;--bg:#f4f7f4;--line:#dce7e1;--panel:#fff;--amber:#d97335;--red:#bd4843;--shadow:0 14px 45px rgba(15,67,55,.06)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans','Noto Sans SC',system-ui,sans-serif;font-size:15px;line-height:1.65}
+.wrap{max-width:980px;margin:0 auto;padding:40px 28px 90px}
+h1{font-size:34px;line-height:1.2;margin:0 0 6px;letter-spacing:-.5px}
+h2{font-size:23px;margin:38px 0 12px;letter-spacing:-.3px;border-bottom:2px solid var(--teal-light);padding-bottom:8px}
+h3{font-size:17px;margin:26px 0 8px;color:var(--accent-dark)}
+h4{font-size:15px;margin:18px 0 6px;color:var(--accent-dark)}
+p{margin:0 0 14px}
+.small{color:var(--muted);font-size:13px}
+.kicker{display:inline-block;font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:var(--teal);font-weight:800;background:var(--teal-light);padding:5px 11px;border-radius:20px;margin-bottom:14px}
+.lead{font-size:17px;color:#3a524d;margin:0 0 22px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin:16px 0;box-shadow:var(--shadow)}
+.callout{background:linear-gradient(135deg,#eef7f3,#f3fbf7);border-left:4px solid var(--accent);border-radius:0 12px 12px 0;padding:14px 18px;margin:16px 0}
+.warn{background:#fff7ed;border-left:4px solid var(--amber);border-radius:0 12px 12px 0;padding:14px 18px;margin:16px 0}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px;background:var(--panel);border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+th,td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#0b3533;color:#d4e7df;font-weight:700;font-size:12px}
+tr:last-child td{border-bottom:0}
+td code,code{background:#eef5f1;color:#0a5c4d;padding:2px 6px;border-radius:5px;font-size:12.5px;font-family:'SF Mono',ui-monospace,monospace}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;margin:0 3px 3px 0}
+.pill.ok{background:#eaf7f1;color:#16735e}.pill.warn{background:#fff2ea;color:#8c3d24}.pill.ai{background:#ede7ff;color:#5b3fb0}.pill.off{background:#eee;color:#666}
+ul,ol{margin:0 0 14px;padding-left:22px}
+li{margin:4px 0}
+.toc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 24px;margin:0 0 30px;columns:2;column-gap:32px;font-size:13.5px}
+.toc a{color:var(--accent);text-decoration:none}.toc a:hover{text-decoration:underline}
+.toc .toc-h{font-weight:800;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--teal);margin-bottom:6px;columns:2}
+.journey{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}
+.j-step{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+.j-step b{display:block;color:var(--accent-dark);font-size:13px;margin-bottom:3px}
+.j-step span{font-size:11px;color:var(--muted)}
+.arch{margin:18px 0;border:1px solid var(--line);border-radius:14px;background:#fff;overflow:hidden}
+.arch-l{display:grid;grid-template-columns:1fr;gap:0}
+.arch-row{display:grid;grid-template-columns:150px 1fr;gap:0;border-bottom:1px solid var(--line)}
+.arch-row:last-child{border-bottom:0}
+.arch-label{background:#0b3533;color:#bcd3ca;padding:14px 16px;font-size:12px;font-weight:700;display:flex;align-items:center}
+.arch-cells{display:grid;gap:0}
+.arch-cell{padding:12px 16px;border-bottom:1px solid var(--line);font-size:13px}
+.arch-cell:last-child{border-bottom:0}
+.arch-cell b{color:var(--accent-dark)}
+.tag{font-size:10px;font-weight:800;letter-spacing:.5px;padding:2px 7px;border-radius:5px;margin-left:6px;vertical-align:middle}
+.tag.new{background:#eaf7f1;color:#16735e}.tag.now{background:#fff2ea;color:#8c3d24}
+hr{border:0;border-top:1px solid var(--line);margin:30px 0}
+.foot{margin-top:50px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}
+@media(max-width:680px){.wrap{padding:24px 16px 60px}.toc{columns:1}.journey{grid-template-columns:1fr 1fr}.arch-row{grid-template-columns:1fr}}
+</style></head><body><h1>HKOnTransit Frontend Optimization Plan</h1>
+<p class="lead">A passenger-focused journey companion with official data, explicit source labels and an optional language interpretation layer.</p>
+<p>This English document describes the original v2 design direction and the current delivery boundary. Proposed features below are not claims of completed functionality.</p>
+<h2 id="s1">1. Audit and gaps</h2>
+<p>The application uses a FastAPI gateway for GMB, KMB, Citybus, MTR and HKO. The single-page interface uses plain HTML, CSS and JavaScript, with SQLite storing fresh ETA snapshots.</p>
+<ul><li>Journey comparison contains sample itineraries, not an arbitrary multimodal route search.</li><li>Community reports stay within the current page and are unverified.</li><li>ETA correction requires independently observed arrivals before publishing accuracy results.</li><li>Accessibility preferences do not establish facility availability or book operator assistance.</li></ul>
+<h2 id="s2">2. Design principles</h2>
+<ul><li>Keep primary travel tasks quick and readable, without obstructing navigation or arrivals.</li><li>Use one continuous workflow: Plan, Board, Ride and Arrive.</li><li>Identify official information, unverified observations and unknown conditions separately.</li><li>Help passengers identify the stop and direction and understand when to request alighting.</li><li>Use AI for language interpretation and explanation. Official sources and deterministic rules govern transport facts.</li></ul>
+<h2 id="s3">3. Information architecture</h2>
+<ul><li><b>Plan:</b> enter preferences and inspect a sample journey.</li><li><b>Board:</b> select an operator, route, direction and stop; inspect official ETA and coordinates.</li><li><b>Ride:</b> manually advance through a stop sequence to preview reminders.</li><li><b>Arrive:</b> future work on verified walking connections and transfer discount eligibility.</li></ul>
+<h2 id="s4">4. Hybrid AI architecture</h2>
+<p>The model produces structured candidates. Schemas and transport rules validate them before use. Frequent ETA, stop and map operations do not call an LLM. Structured AI output is cached separately.</p>
+<ul><li>Preference interpretation maps language to a fixed preference enum, weights and quick-choice IDs.</li><li>Report structuring extracts a mobility event while retaining an unverified status.</li><li>Route explanation describes supplied route data without inventing fares, arrival times or stops.</li></ul>
+<p>The default adapter uses local keyword rules. DeepSeek requires credentials and has a bounded fallback. The model identifier is configurable; a credentialed live model was not validated in this delivery.</p>
+<h2 id="s5">5. API contracts</h2>
+<ul><li><code>POST /api/ai/interpret-preferences</code>: natural-language preferences to validated intent.</li><li><code>POST /api/ai/structure-report</code>: an observation to an unverified mobility event.</li><li><code>POST /api/ai/explain-route</code>: supplied route data to an explanation.</li><li><code>GET /api/ai/status</code>: configured provider and fallback information.</li></ul>
+<p>The report and explanation JavaScript hooks remain reserved integration points; they do not implement a live route engine or shared reporting system.</p>
+<h2 id="s6">6. Frontend modules</h2>
+<ul><li><code>index.html</code>: screens, responsive styles and local UI interactions.</li><li><code>static/live.js</code>: official lookup, arrival rendering and progressive stop-name loading.</li><li><code>static/network.js</code>: bounded same-origin requests and recovery messages.</li><li><code>static/ai.js</code>: preference interpretation and optional AI hooks.</li><li><code>static/connections.js</code>: five-provider diagnostics.</li><li><code>static/i18n.js</code>: compatibility hooks for this English-only release.</li></ul>
+<p>Potential future work includes extracting shared styles and screen modules. A large framework is not required for this prototype.</p>
+<h2 id="s7">7. Screen guidance</h2>
+<ul><li><b>Home:</b> concise preferences and a clear distinction between live lookup and sample planning.</li><li><b>Results:</b> label illustrative durations; verify routes, direction, payment and transfer windows before claiming discounts.</li><li><b>Boarding:</b> show official timestamps, direction and coordinates; retain unverified photo and capacity states.</li><li><b>Ride:</b> label manual progression and explain that reminders are not actual vehicle tracking.</li><li><b>Reports:</b> distinguish observation time from submission time and make the local-only review state clear.</li><li><b>Accessibility:</b> separate Confirmed, Not Accessible and Unknown states.</li></ul>
+<h2 id="s8">8. Inclusive interaction</h2>
+<p>Use readable controls, large text, keyboard focus, screen-reader labels and optional speech. Text and icons accompany status colours. User testing with passengers remains future work; the presence of toggles is not evidence that accessibility needs have been resolved.</p>
+<h2 id="s9">9. Evidence and transparency</h2>
+<p>ETA Lab shows snapshot and independent observation counts. MAE, the proportion within three minutes and prediction interval coverage require a defined observed-arrival dataset and hold-out evaluation. Do not publish invented improvement figures.</p>
+<h2 id="s10">10. Delivery phases</h2>
+<ul><li><b>Implemented:</b> official lookup adapters, English interface, AI schemas/adapters, local preference interpretation, bounded requests, diagnostics and an IDLE-compatible launcher.</li><li><b>Planned:</b> further screen modularisation, grounded explanations integrated with real routing, shared report moderation, verified transfer rules, and independent ETA correction evaluation.</li><li><b>Requires external setup:</b> credentialed AI validation and production hosting.</li></ul>
+<h2 id="s11">11. Risks and responses</h2>
+<ul><li>Model hallucination: constrain outputs and validate schemas; retain official transport values.</li><li>Unverified observations: explicit review status and no automatic official-data overrides.</li><li>Slow services: deadlines, selective retry, cached responses and failure circuits.</li><li>Provider changes: isolate adapters and keep model configuration separate from business logic.</li><li>Insufficient evidence: retain official baselines and withhold accuracy claims until evaluated.</li></ul>
+<p>See <code>README.md</code> for startup instructions and <code>VALIDATION.md</code> for tested behaviour and remaining limits.</p></body></html>

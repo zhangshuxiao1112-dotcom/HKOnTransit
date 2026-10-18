@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="#0a3432" name="theme-color"/>
+<meta content="HKOnTransit — Inclusive, trust-aware public transport companion (interactive concept prototype)." name="description"/>
+<title>HKOnTransit · Journey Companion Prototype</title>
+<style>
+:root{--ink:#183e3d;--muted:#647977;--accent:#087d69;--accent-dark:#04564b;--teal-light:#ddf4ec;--bg:#f4f7f4;--line:#dce7e1;--panel:#fff;--yellow:#f6a926;--orange:#d97335;--red:#bd4843;--shadow:0 14px 45px rgba(15,67,55,.06);--radius:20px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #52b9a4;outline-offset:2px}
+button:disabled{cursor:not-allowed;opacity:.6}
+a{color:var(--accent)}
+
+/* ===== Layout ===== */
+.app{min-height:100vh;display:flex;flex-direction:column}
+.topbar{height:56px;background:rgba(255,255,255,.93);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:30}
+.topbar-brand{display:flex;align-items:center;gap:9px}
+.topbar-brand .logo{width:32px;height:32px;border-radius:9px;background:var(--teal-light);color:var(--accent-dark);display:grid;place-items:center;font-weight:800;font-size:17px}
+.topbar-brand-name{font-size:15px;font-weight:800;color:var(--ink);letter-spacing:-.3px}
+.topbar-actions{display:flex;gap:8px}
+.icon-btn{width:44px;height:44px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);display:grid;place-items:center;position:relative;transition:background .15s,border-color .15s;flex-shrink:0}
+.icon-btn:hover{background:var(--teal-light);border-color:var(--accent)}
+.icon-btn svg{width:22px;height:22px}
+.icon-btn .lang-short{font-size:13px;font-weight:800}
+.icon-btn .badge-dot{position:absolute;top:-3px;right:-3px;background:var(--accent);color:#fff;font-size:9px;border-radius:8px;padding:1px 5px;font-weight:700}
+
+/* ===== Language dropdown ===== */
+.lang-dropdown{position:relative;display:flex}
+.lang-menu{position:absolute;top:calc(100% + 6px);right:0;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 40px rgba(15,67,55,.12);min-width:148px;z-index:100;overflow:hidden;padding:4px}
+.lang-menu[hidden]{display:none}
+.lang-menu button{width:100%;border:none;background:transparent;padding:10px 14px;text-align:left;font-size:14px;color:var(--ink);display:flex;align-items:center;gap:8px;cursor:pointer;transition:background .12s;border-radius:10px}
+.lang-menu button:hover,.lang-menu button:focus-visible{background:var(--teal-light)}
+.lang-menu button.active{font-weight:700;color:var(--accent);background:var(--teal-light)}
+.lang-menu button .lang-glyph{font-size:16px;font-weight:800;width:20px;text-align:center;flex-shrink:0}
+.lang-menu button .lang-check{margin-left:auto;font-size:13px;color:var(--accent)}
+.lang-menu button:not(.active) .lang-check{visibility:hidden}
+
+.main{flex:1;padding:0;min-width:0}
+.screen{display:none;padding:22px 22px 100px;max-width:960px;margin:0 auto}
+.screen.active{display:block}
+.screen#home{padding:0;max-width:none}
+
+/* ===== Home hero ===== */
+.home-hero{position:relative;min-height:calc(100vh - 56px);background:linear-gradient(150deg,#0a3432 0%,#04564b 45%,#087d69 100%);display:flex;flex-direction:column;justify-content:center;padding:40px 20px 100px;overflow:hidden}
+.home-hero::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 15% 25%,rgba(95,200,170,.15) 0,transparent 40%),radial-gradient(circle at 85% 75%,rgba(95,200,170,.1) 0,transparent 35%),repeating-linear-gradient(75deg,transparent 0 60px,rgba(255,255,255,.02) 60px 62px);pointer-events:none}
+.home-hero::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cpath d='M10 60 Q30 20 60 50 T110 70' fill='none' stroke='%23ddf4ec' stroke-width='1' opacity='.08'/%3E%3Ccircle cx='60' cy='50' r='2' fill='%23ddf4ec' opacity='.1'/%3E%3C/svg%3E");pointer-events:none}
+.home-content{position:relative;z-index:1;max-width:620px;margin:0 auto;width:100%}
+.home-eyebrow{color:rgba(221,244,236,.7);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.home-title{color:#fff;font-size:clamp(22px,5vw,30px);font-weight:800;letter-spacing:-.5px;margin:0 0 24px;line-height:1.3}
+.home-plan-panel{background:rgba(255,255,255,.96);border-radius:18px;padding:24px 22px;box-shadow:0 16px 50px rgba(0,0,0,.18)}
+.home-plan-panel .eyebrow{font-size:10px;letter-spacing:1.3px;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:4px}
+.home-plan-panel .plan-title{font-size:22px;font-weight:800;letter-spacing:-.3px;margin:2px 0 4px;color:var(--ink)}
+.home-plan-panel .plan-sub{color:var(--muted);font-size:13px;margin:0 0 16px}
+.home-icons{display:flex;gap:14px;margin-top:18px}
+.home-icon-btn{flex:1;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:16px;padding:18px 12px;color:#fff;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;transition:background .15s,border-color .15s;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.home-icon-btn:hover,.home-icon-btn:active{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.4)}
+.home-icon-btn svg{width:32px;height:32px;flex-shrink:0}
+.home-icon-btn b{font-size:14px;font-weight:700;line-height:1.3}
+.home-icon-btn small{font-size:11px;opacity:.75}
+
+/* ===== Cards & inputs ===== */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);margin-bottom:16px}
+.section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px}
+.section-title{font-size:16px;font-weight:800;margin:0;color:var(--ink)}
+.eyebrow{font-size:10px;letter-spacing:1.3px;text-transform:uppercase;color:var(--accent);font-weight:700}
+.h1{font-size:clamp(22px,5vw,28px);font-weight:800;letter-spacing:-.4px;margin:4px 0 6px}
+.subtitle{color:var(--muted);font-size:13.5px;margin:0 0 20px;line-height:1.6}
+.inputgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field>label{font-size:12px;font-weight:700;color:var(--ink)}
+.field input,.field select,.field textarea{padding:10px 13px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink);width:100%}
+.field textarea{resize:vertical;min-height:60px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 20px;border:1px solid var(--accent);border-radius:12px;background:var(--accent);color:#fff;font-weight:700;font-size:14px;transition:background .15s,opacity .15s}
+.btn:hover{background:var(--accent-dark)}
+.btn.secondary{background:#fff;color:var(--accent)}
+.btn.outline{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.text{background:transparent;border:0;color:var(--accent);padding:6px 10px}
+.btn.full{width:100%}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.chip{padding:8px 15px;border:1px solid var(--line);border-radius:30px;background:#fff;color:var(--ink);font-size:13px;font-weight:600;transition:border-color .15s,color .15s,background .15s}
+.chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;background:var(--teal-light);color:var(--accent-dark);font-size:11px;font-weight:700}
+.badge.grey{background:#eef0ee;color:var(--muted)}
+.badge.warn{background:#fff3e0;color:var(--orange)}
+.divider{height:1px;background:var(--line);margin:16px 0}
+.note{background:#f6f9f7;border:1px solid var(--line);border-radius:12px;padding:13px 15px;font-size:13px;color:var(--ink);line-height:1.6}
+.note.ok{background:#eaf7f1;border-color:#c3e8d8;color:#16735e}
+.note.error{background:#fff2ea;border-color:#f5d4c3;color:#8c3d24}
+.smallprint{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5}
+.help{font-size:12px;color:var(--muted);line-height:1.6}
+.alert{background:#fff8e8;border:1px solid #fde5a8;border-radius:12px;padding:13px 15px;font-size:12.5px;color:#7a5a10;line-height:1.6;margin-top:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.progress{display:flex;gap:3px;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:18px;flex-wrap:wrap}
+.progress span{padding:4px 10px;background:#eef0ee;border-radius:20px}
+.progress span.active{background:var(--accent);color:#fff}
+.progress .done{color:var(--accent);background:var(--teal-light)}
+
+/* Route cards */
+.route-card{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:18px;margin-bottom:12px;transition:border-color .15s}
+.route-card.selected{border-color:var(--accent)}
+.route-card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.route-title{font-size:16px;font-weight:800;color:var(--ink)}
+.route-time{font-size:28px;font-weight:800;color:var(--accent)}
+.route-meta{display:flex;gap:14px;font-size:12px;color:var(--muted);margin:10px 0;flex-wrap:wrap}
+.route-controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.inline-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+
+/* Step lines */
+.step-line{display:flex;gap:14px;padding:10px 0;border-left:2px solid var(--line);padding-left:16px;margin-left:8px}
+.step-dot{width:26px;height:26px;border-radius:50%;background:var(--teal-light);color:var(--accent-dark);display:grid;place-items:center;font-weight:800;font-size:13px;flex-shrink:0}
+.step-body{flex:1}
+.step-body strong{display:block;font-size:14px;margin-bottom:3px}
+.step-body p{margin:0;font-size:12px;color:var(--muted);line-height:1.6}
+.step-body:last-child{border-left:0}
+
+/* Map / location */
+.map-panel{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:12px 0}
+.location-panel{min-height:220px;display:flex;align-items:center;justify-content:center;background:linear-gradient(130deg,#eaf5ef,#f8fcfa)}
+.location-content{position:relative;z-index:2;text-align:center;padding:22px}
+.location-content h3{font-size:18px;margin:14px 0 8px}
+.location-content p{color:#5d766a;line-height:1.7;font-size:12.5px}
+.location-content a{display:inline-flex;margin-top:13px;text-decoration:none;align-items:center}
+.photo-placeholder{background:linear-gradient(135deg,#f0f4f1,#e8efeb);border:1px dashed var(--line);border-radius:12px;padding:28px;text-align:center;color:var(--muted);font-size:13px}
+
+/* Ride mode */
+.ride-stage{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow);margin-bottom:14px}
+.ride-stage .tag{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--accent)}
+.ride-stage .stop{font-size:24px;font-weight:800;margin:6px 0 4px}
+.ride-stage .detail{color:var(--muted);font-size:13px}
+.stops{list-style:none;padding:0;margin:0}
+.stops li{padding:12px 0;border-bottom:1px solid var(--line)}
+.stops li:last-child{border:0}
+.stops li strong{font-size:14px}
+.stops li small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.stops li.current strong{color:var(--accent)}
+.stops li.destination strong{color:var(--red)}
+
+/* Toggles */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.toggle-row:last-of-type{border:0}
+.toggle-row b{font-size:14px}
+.toggle-row small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+.toggle-row input[type=checkbox]{width:44px;height:26px;appearance:none;background:#ccc;border-radius:13px;position:relative;cursor:pointer;flex-shrink:0;transition:background .2s}
+.toggle-row input[type=checkbox]:checked{background:var(--accent)}
+.toggle-row input[type=checkbox]::before{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:transform .2s}
+.toggle-row input[type=checkbox]:checked::before{transform:translateX(18px)}
+
+/* ETA */
+.eta-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:12px 0}
+.eta-block{background:#f6f9f7;border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+.eta-block .label{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.eta-block .number{font-size:32px;font-weight:800;color:var(--accent);overflow-wrap:anywhere}
+.eta-block .unit{font-size:14px;font-weight:600;color:var(--muted)}
+.eta-block .help{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* Lab */
+.evidence{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.evidence .card{padding:16px;text-align:center}
+.metric{font-size:28px;font-weight:800;color:var(--ink);margin:4px 0}
+.empty-chart{background:#f6f9f7;border:1px dashed var(--line);border-radius:12px;padding:22px;text-align:center;color:var(--muted);font-size:12.5px;line-height:1.8}
+.bar-row{display:grid;grid-template-columns:90px 1fr 70px;gap:10px;align-items:center;margin:8px 0;font-size:12px}
+.bar{height:8px;border-radius:6px;background:#e8ede8;overflow:hidden}
+.bar-inner{height:100%;background:var(--accent);border-radius:6px;transition:width .4s}
+
+/* More screen */
+.more-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.more-card{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px 16px;box-shadow:var(--shadow);transition:transform .12s,border-color .12s}
+.more-card:hover{transform:translateY(-2px);border-color:var(--accent)}
+.more-card svg{width:36px;height:36px;color:var(--accent)}
+.more-card b{font-size:15px}
+.more-card small{font-size:12px;color:var(--muted)}
+
+/* Footer */
+.foot{max-width:960px;margin:0 auto;padding:20px 22px 100px;font-size:11px;color:var(--muted);line-height:1.7;text-align:center}
+
+/* Toast */
+.toast{position:fixed;bottom:76px;left:16px;right:16px;background:var(--ink);color:#fff;padding:14px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:50;opacity:0;transform:translateY(10px);transition:opacity .2s,transform .2s;pointer-events:none;max-width:480px;margin:0 auto}
+.toast.active{opacity:1;transform:translateY(0)}
+
+/* Bottom nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:62px;background:rgba(255,255,255,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;z-index:30}
+.bottom-nav button{flex:1;border:0;background:transparent;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;font-weight:700;transition:color .15s;-webkit-tap-highlight-color:transparent}
+.bottom-nav button svg{width:24px;height:24px}
+.bottom-nav button.active{color:var(--accent)}
+
+/* Accessibility large text */
+.theme-large{font-size:17px}
+.theme-large .h1{font-size:32px}
+.theme-large .btn,.theme-large .chip{font-size:15px;padding:13px 22px}
+.theme-large .section-title{font-size:18px}
+.theme-large .note{font-size:14px}
+.theme-large .smallprint{font-size:12.5px}
+.theme-large .help{font-size:13.5px}
+
+/* AI NL bar */
+.ai-input-wrap{background:linear-gradient(135deg,#f3fbf7,#eef7f3);border:1px dashed #9fd2c4;border-radius:14px;padding:14px 15px;margin-top:4px}
+.ai-input-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:9px;align-items:stretch}
+.ai-input-row textarea{resize:vertical;min-height:46px;padding:11px 13px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);line-height:1.5}
+.ai-intent-result{margin-top:11px}
+.ai-prefs{display:flex;flex-direction:column;gap:7px;margin-top:7px}
+.ai-pref{display:grid;grid-template-columns:88px minmax(0,1fr) 44px;gap:9px;align-items:center}
+.ai-bar{height:8px;border-radius:6px;background:linear-gradient(90deg,#0a755d var(--w,.5),#dce7e1 var(--w,.5))}
+.ai-pref-label{font-size:12px;font-weight:700;color:var(--accent-dark)}
+
+/* Hidden */
+[hidden]{display:none!important}
+
+/* Responsive */
+@media(max-width:700px){
+  .screen{padding:18px 14px 90px}
+  .grid2{grid-template-columns:1fr}
+  .grid3{grid-template-columns:1fr 1fr}
+  .inputgrid{grid-template-columns:1fr}
+  .more-grid{grid-template-columns:1fr}
+  .home-hero{padding:30px 16px 90px}
+  .home-icons{flex-direction:column}
+  .home-plan-panel{padding:20px 18px}
+  .evidence{grid-template-columns:1fr 1fr}
+  .bar-row{grid-template-columns:80px 1fr 60px}
+  .toast{bottom:72px}
+  .ai-input-row{grid-template-columns:1fr}
+  .ai-pref{grid-template-columns:70px 1fr 38px}
+}
+.connection-strip{display:flex;flex-wrap:wrap;gap:8px;padding:8px 16px;align-items:center;border-bottom:1px solid var(--line);background:var(--panel)}
+.field select{max-width:100%}
+.card,.step-body{min-width:0}
+.section-head .badge{flex-shrink:0}
+@media(max-width:520px){.section-head{flex-wrap:wrap}.connection-strip{font-size:11px}.connection-strip .badge{font-size:10px}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+
+<header class="topbar">
+  <div class="topbar-brand">
+    <div class="logo">↗</div>
+    <div class="topbar-brand-name">HKOnTransit</div>
+  </div>
+  <div class="topbar-actions">
+    <div class="lang-dropdown" id="langDropdown">
+      <button class="icon-btn" id="langBtn" aria-label="Language" title="Language" aria-haspopup="true" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+      </button>
+      <div class="lang-menu" id="langMenu" role="menu" hidden>
+        <button role="menuitem" data-lang="en"><span class="lang-glyph">En</span>English<span class="lang-check">✓</span></button>
+      </div>
+    </div>
+    <button class="icon-btn" id="accessBtn" aria-label="Accessibility" title="Accessibility">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.2"/><path d="M5 9h14M9 9v5l-2 7M15 9v5l2 7M12 14v6"/></svg>
+    </button>
+  </div>
+</header>
+
+
+<div class="connection-strip" aria-live="polite"><span class="badge grey" id="apiStatus">Official data · Waiting for query</span></div>
+
+<main class="main">
+
+
+<section class="screen active" id="home">
+  <div class="home-hero">
+    <div class="home-content">
+      <div class="home-eyebrow" data-i18n="home.eyebrow">Smarter journeys, for everyone</div>
+      <h1 class="home-title" data-i18n="home.title">Beyond route planning — we help you board, ride, and arrive.</h1>
+      <div class="home-plan-panel">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow" data-i18n="home.planLabel">01 · Plan Your Journey</div>
+            <h2 class="plan-title" data-i18n="home.planTitle">Where to?</h2>
+            <p class="plan-sub" data-i18n="home.planSub">Enter origin & destination, or tell AI your preference in one sentence.</p>
+          </div>
+          <span class="badge" data-i18n="home.noLogin">No login required</span>
+        </div>
+        <div class="inputgrid">
+          <div class="field"><label for="origin" data-i18n="home.origin">From</label><input autocomplete="off" id="origin" data-i18n-ph="home.originDef" value="MTR Station A (sample)"/></div>
+          <div class="field"><label for="destination" data-i18n="home.dest">To</label><input autocomplete="off" id="destination" data-i18n-ph="home.destDef" value="Destination B (sample)"/></div>
+        </div>
+        <div class="ai-input-wrap">
+          <div class="eyebrow" style="margin-bottom:8px" data-i18n="home.aiLabel">✦ Natural-Language Preference · AI</div>
+          <div class="ai-input-row">
+            <textarea aria-label="Describe your travel needs" id="nlPrefInput" data-i18n-ph="home.aiPh" placeholder="Describe your needs, e.g. less walking even if it costs more"></textarea>
+            <button class="btn secondary" id="nlPrefBtn" data-i18n="home.aiBtn">✦ AI Interpret</button>
+          </div>
+          <div class="ai-intent-result" id="aiIntentResult"></div>
+        </div>
+        <div class="chips">
+          <button class="chip active" id="prefFast" data-i18n="home.chipFast">◷ Faster</button>
+          <button class="chip" id="prefWalk" data-i18n="home.chipWalk">♧ Less Walking</button>
+          <button class="chip" id="prefTransfer" data-i18n="home.chipXfer">⇄ Fewer Transfers</button>
+        </div>
+        <button class="btn full" data-go="results" data-i18n="home.planGo" style="font-size:16px;padding:14px">Plan My Journey →</button>
+        <p class="smallprint">Journey planning uses a sample scenario. For live arrivals, open Find Routes & Stops.</p>
+      </div>
+      <div class="home-icons">
+        <button class="home-icon-btn" data-go="report">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-12V5l-8-3-8 3v5c0 8 8 12 8 12z"/><path d="M12 8v4M12 16h.01"/></svg>
+          <b data-i18n="home.iconReport">Report</b>
+          <small data-i18n="home.iconReportSub">Report what you see</small>
+        </button>
+        <button class="home-icon-btn" data-go="boarding">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 11h14"/><circle cx="6.5" cy="20.5" r="1.5"/><circle cx="13.5" cy="20.5" r="1.5"/><path d="M17 8h3a2 2 0 0 1 2 2v3"/></svg>
+          <b data-i18n="home.iconQuery">Find Routes & Stops</b>
+          <small data-i18n="home.iconQuerySub">GMB / KMB / CTB live ETA</small>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="screen" id="live">
+  <div class="eyebrow" data-i18n="live.eyebrow">Real-time Context</div>
+  <h1 class="h1" data-i18n="live.title">Real-time Info</h1>
+  <p class="subtitle">Check official weather and train arrivals before you travel.</p>
+  <div class="grid2">
+    <div class="card">
+      <div class="section-head"><h2 class="section-title">Hong Kong Observatory · Weather</h2><span class="badge grey">HKO</span></div>
+      <div class="note" id="weatherNow" role="status">Loading official weather…</div>
+      <button class="btn text" id="refreshWeather" style="margin-top:12px">Refresh weather ↻</button>
+    </div>
+    <div class="card">
+      <div class="section-head"><h2 class="section-title">MTR · Next Train</h2><span class="badge grey">MTR</span></div>
+      <div class="inputgrid">
+        <div class="field"><label for="mtrLine">Line</label><select id="mtrLine"><option value="TKL">Tseung Kwan O Line · TKL</option><option value="ISL">Island Line · ISL</option><option value="AEL">Airport Express · AEL</option></select></div>
+        <div class="field"><label for="mtrStation">Station</label><select id="mtrStation"><option value="TKO">Tseung Kwan O · TKO</option></select></div>
+      </div>
+      <button class="btn secondary" id="lookupMtr">Check train arrivals</button>
+      <div class="note" id="mtrResult" role="status" style="margin-top:12px">Choose a line and station to check official train arrivals.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-head"><h2 class="section-title">Data connections</h2><button class="btn outline" id="checkConnections">Check connections</button><button class="btn outline" id="retryConnections">Retry route lookup</button><button class="btn outline" id="downloadDiagnostics" disabled>Download diagnostics</button></div>
+    <div class="note" id="connectionResults" role="status">Check the five official sources when you need to confirm connectivity. A successful connection does not guarantee a prediction for every stop.</div>
+  </div>
+</section>
+
+
+<section class="screen" id="results">
+  <div class="eyebrow" data-i18n="res.eyebrow">02 · Compare Your Options</div>
+  <h1 class="h1" data-i18n="res.title">Choose a Route You Can Actually Execute</h1>
+  <p class="subtitle">Explore a sample journey. Journey times and transfers below are illustrative, not live routing results.</p>
+  <div class="grid2">
+    <div>
+      <div class="route-card selected" id="routeA">
+        <div class="route-card-head"><div><span class="badge">Recommended sample</span><div class="route-title" style="margin-top:11px">MTR → Walk → Green minibus</div></div><div style="text-align:right"><div class="route-time">About 26 <small style="font-size:12px">min</small></div><span class="smallprint">Illustrative estimate</span></div></div>
+        <div class="route-meta"><span>◷ 1 transfer</span><span>↗ 6-minute walk</span><span>◈ Fare not verified</span></div>
+        <div class="note">Try stop lookup, live arrivals, local reports and manual ride reminders.</div>
+        <div class="route-controls"><button class="btn" data-go="boarding">Explore this journey →</button><button class="btn outline" data-go="access">Accessibility preferences</button></div>
+      </div>
+      <div class="route-card" id="routeB">
+        <div class="route-card-head"><div><span class="badge grey">Sample alternative</span><div class="route-title" style="margin-top:11px">Walk → Bus → Walk</div></div><div style="text-align:right"><div class="route-time">About 35 <small style="font-size:12px">min</small></div><span class="smallprint">Illustrative estimate</span></div></div>
+        <div class="route-meta"><span>◷ No transfers</span><span>↗ Longer walk</span><span>◈ Fare not verified</span></div>
+        <div class="note">This is a sample alternative. Use Find Routes & Stops for live KMB and Citybus arrivals.</div>
+        <div class="route-controls"><button class="btn outline" id="altRouteBtn">About this alternative</button></div>
+      </div>
+      <div class="alert"><strong>Transfer discounts:</strong>Transfer discounts depend on route, direction, payment method and timing. This prototype does not calculate discounts.</div>
+    </div>
+    <div class="card">
+      <div class="section-head"><h2 class="section-title">Journey details</h2><span class="badge grey">SELECTED SCENARIO</span></div>
+      <div class="step-line"><div class="step-dot">1</div><div class="step-body"><strong>MTR journey</strong><p>Arrive at your interchange. Check supported lines in Real-time Info.</p></div></div>
+      <div class="step-line"><div class="step-dot">2</div><div class="step-body"><strong>Walk to the minibus stop</strong><p>Check the route direction and official coordinates. Sample walk: 6 minutes.</p></div></div>
+      <div class="step-line"><div class="step-dot">3</div><div class="step-body"><strong>Wait for a green minibus</strong><p>Check the official arrival estimate and allow enough transfer time.</p></div></div>
+      <div class="step-line"><div class="step-dot">4</div><div class="step-body" style="border-left:0;padding-bottom:0"><strong>Ride Mode</strong><p>Confirm boarding and manually advance through stops to try the reminder.</p></div></div>
+      <div class="divider"></div>
+      <button class="btn secondary full" data-go="boarding">Find your boarding stop →</button>
+    </div>
+  </div>
+</section>
+
+
+<section class="screen" id="boarding">
+  <div class="eyebrow" data-i18n="brd.eyebrow">03 · Find & Trust</div>
+  <h1 class="h1" data-i18n="brd.title">Find the Right Stop Before You Go</h1>
+  <p class="subtitle">Choose a route, direction and stop to check official arrivals and stop coordinates.</p>
+  <div class="progress"><span class="done">✓ Plan</span><span class="active">● Find &amp; Wait</span><span>○ Board</span><span>○ Ride</span><span>○ Arrive</span></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="section-head"><div><div class="eyebrow">OFFICIAL STOP MAPPING</div><h2 class="section-title">Boarding stop · Not selected</h2></div><span class="badge grey">Awaiting coordinates</span></div>
+      <div aria-label="Official stop coordinates" class="map-panel location-panel" id="realLocationPanel" role="group"><div class="location-content"><span class="badge grey">LOCATION DATA NOT LOADED</span><h3 id="stopLocationTitle">Select a route and boarding stop</h3><p id="stopLocationText">Open official coordinates on a map when available. Stop photos and boarding conditions have not been verified on site.</p><a class="btn outline" hidden id="officialMapLink" rel="noopener noreferrer" target="_blank">View coordinates on OpenStreetMap ↗</a></div></div>
+      <div class="divider"></div>
+      <div class="label" style="margin-bottom:9px">Stop photos</div>
+      <div class="photo-placeholder">📷 No verified stop photos available yet</div>
+      <p class="help" style="margin-top:13px">Before boarding, confirm the route and direction on the vehicle display.</p>
+    </div>
+    <div>
+      <div class="card" id="liveQuery">
+        <div class="eyebrow">OFFICIAL TRANSPORT API · LIVE QUERY</div>
+        <h2 class="section-title">Find live arrivals</h2>
+        <p class="help">Select an operator, route, direction and stop. Arrivals come from official open data.</p>
+        <div class="inputgrid">
+          <div class="field"><label for="operatorSelect">Operator</label><select id="operatorSelect"><option value="GMB">Green minibus · GMB</option><option value="KMB">Kowloon Motor Bus · KMB</option><option value="CTB">Citybus · CTB</option></select></div>
+          <div class="field" id="regionWrap"><label for="regionSelect">Region</label><select id="regionSelect"><option value="HKI">Hong Kong Island</option><option value="KLN">Kowloon</option><option value="NT">New Territories</option></select></div>
+          <div class="field" id="routeSelectWrap"><label for="routeSelect">Route number</label><select aria-label="Select a green minibus route" id="routeSelect"><option value="">Loading official routes…</option></select></div>
+          <div class="field" hidden id="routeInputWrap"><label for="routeInput">Bus route number</label><input autocomplete="off" id="routeInput" maxlength="8" placeholder="e.g. 1 / 6 / 107"/></div>
+          <div class="field"><label for="directionSelect">Direction</label><select id="directionSelect"><option value="">Select a route first</option></select></div>
+          <div class="field"><label for="stopSelect">Boarding stop</label><select id="stopSelect"><option value="">Select a direction first</option></select></div>
+        </div>
+        <div class="note" id="liveQueryStatus" role="status">Connecting to official transport data…</div>
+        <div class="route-controls"><button class="btn full" id="lookupEta">Find arrivals and stop →</button></div>
+        <p class="smallprint">Start the included server to connect. Live arrivals appear only after an official response.</p>
+      </div>
+      <div class="card" id="liveEtaCard">
+        <div class="section-head"><div><div class="eyebrow">CITYPULSE · OFFICIAL DATA</div><h2 class="section-title">Official arrival estimates</h2></div><span class="badge grey" id="etaHealth">Not checked</span></div>
+        <div class="smallprint" id="etaRouteContext">Choose a route, direction and stop above</div>
+        <div aria-live="polite" class="eta-row" id="liveEtaItems"><div class="eta-block"><div class="label">Official ETA</div><div class="number">—</div><div class="help">Not checked</div></div></div>
+        <div class="note"><strong>Model correction:</strong>Not released. Model validation needs observed arrivals and hold-out tests. An arrival estimate does not guarantee boarding.</div>
+        <div class="divider"></div>
+        <div class="inline-actions"><span class="badge grey" id="lastFetched">No data received</span><button class="btn secondary" id="refreshEta">Refresh arrivals ↻</button><button class="btn text" data-go="lab">View data validation →</button></div>
+        <p class="smallprint">Arrivals refresh every minute while this screen is active. Stale estimates are hidden.</p>
+      </div>
+      <div class="card">
+        <div class="section-head"><h2 class="section-title">Service observations</h2><span class="badge grey">No verified event feed</span></div>
+        <div class="note">Live occupancy and verified community alerts are not available. Boarding capacity cannot be inferred.</div>
+        <div class="route-controls"><button class="btn outline" data-go="report">Record an observation (local)</button><button class="btn secondary" data-go="results">Sample journey</button></div>
+      </div>
+      <div class="field" style="margin-top:16px"><label for="alightSelect">Alighting stop (manual simulation)</label><select id="alightSelect"><option value="">Select a boarding stop first</option></select></div>
+      <button class="btn full" id="boardNow" style="margin-top:16px">Boarded · Start ride simulation →</button>
+    </div>
+  </div>
+</section>
+
+
+<section class="screen" id="ride">
+  <div class="eyebrow" data-i18n="ride.eyebrow">04 · Onboard Companion</div>
+  <h1 class="h1" data-i18n="ride.title">Ride Mode · Alight Reminder</h1>
+  <p class="subtitle">Stop order comes from your selected route. Advance manually to try reminders; this mode does not track GPS or the vehicle. A sample sequence appears before route selection.</p>
+  <div class="grid2">
+    <div>
+      <div class="ride-stage">
+        <div class="tag">● <span id="rideActiveTag">WAITING FOR USER CONFIRMATION</span></div>
+        <div class="stop" id="rideHeadline">Ride not started</div>
+        <div class="detail" id="rideSub">Select Boarded to start a sample ride.</div>
+      </div>
+      <div class="card">
+        <h2 class="section-title">Ride controls</h2>
+        <p class="help">Advance manually to preview each stop. No GPS tracking is active.</p>
+        <div class="inline-actions"><button class="btn" id="startRide">Boarded</button><button class="btn secondary" id="nextStop">Simulate next stop →</button><button class="btn outline" id="speakBtn">🔊 Voice reminder</button></div>
+        <div class="divider"></div>
+        <div class="note" id="alightStatus" role="status">A reminder appears near the destination in this simulation. Notify the driver yourself.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-head"><h2 class="section-title">Stop sequence (simulation)</h2><span class="badge grey">Manual simulation · No live tracking</span></div>
+      <ul class="stops" id="stopTimeline">
+        <li class="current"><div><strong>Stop 02 · Boarding stop</strong><small>Waiting to start</small></div></li>
+        <li><div><strong>Stop 03</strong><small>Intermediate stop</small></div></li>
+        <li><div><strong>Stop 04</strong><small>Intermediate stop</small></div></li>
+        <li class="destination"><div><strong>Stop 05 · Destination</strong><small>Destination reminder</small></div></li>
+      </ul>
+      <div class="alert"><strong>Travel reminder:</strong>Check your actual location. A reminder does not mean you have arrived or that the driver has received a request.</div>
+    </div>
+  </div>
+</section>
+
+
+<section class="screen" id="report">
+  <div class="eyebrow" data-i18n="rpt.eyebrow">05 · Verified Community Loop</div>
+  <h1 class="h1" data-i18n="rpt.title">Community Reports</h1>
+  <p class="subtitle">Record an observation for local review. Reports do not change official arrivals or stop information.</p>
+  <div class="grid2">
+    <div class="card">
+      <h2 class="section-title">Record an observation</h2>
+      <div class="field" style="margin:19px 0 15px"><label for="eventType">Observation type</label><select id="eventType"><option value="passed_without_stopping">Vehicle passed without stopping</option><option value="suspected_full">Possibly full</option><option value="unable_to_board">Unable to board</option><option value="vehicle_arrived">Vehicle arrived (observed)</option><option value="wrong_stop_location">Possible incorrect boarding location</option><option value="accessibility_obstacle">Accessibility obstacle</option></select></div>
+      <div class="inputgrid"><div class="field"><label for="reportRoute">Route and direction</label><input id="reportRoute" required value="GMB DEMO-01 · Direction A"/></div><div class="field"><label for="reportStop">Stop</label><input id="reportStop" required value="Sample stop 02"/></div></div>
+      <div class="field"><label for="eventTime">Observation time (not submission time)</label><input id="eventTime" type="datetime-local"/></div>
+      <div class="field" style="margin:15px 0 20px"><label for="reportDesc">Observation details (optional)</label><textarea id="reportDesc" placeholder="For example: a vehicle passed the stop without stopping; the reason was unclear."></textarea></div>
+      <button class="btn full" id="submitReport">Save observation to this page →</button>
+      <p class="smallprint">Reports stay in this page only. They are not sent to other passengers or saved after closing.</p>
+    </div>
+    <div>
+      <div class="card">
+        <h2 class="section-title">Review process</h2>
+        <div style="margin-top:20px">
+          <div class="step-line"><div class="step-dot">1</div><div class="step-body"><strong>Record observation and submission times</strong><p>Keep the observation time separate from the submission time.</p></div></div>
+          <div class="step-line"><div class="step-dot">2</div><div class="step-body"><strong>Match route, direction, stop and time window</strong><p>Check duplicates, ambiguous matches and conflicting observations.</p></div></div>
+          <div class="step-line"><div class="step-dot">3</div><div class="step-body" style="border:0;padding-bottom:0"><strong>Verify, publish and expire</strong><p>Label reports Unverified, Corroborated or Operator-confirmed. Expired reports leave the live view.</p></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-head"><h2 class="section-title">Reports in this session</h2><span class="badge grey" id="reportCount">0 reports</span></div>
+        <div class="empty-chart" id="reportList">No reports submitted in this session</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="screen" id="access">
+  <div class="eyebrow" data-i18n="acc.eyebrow">06 · Inclusive Mobility</div>
+  <h1 class="h1" data-i18n="acc.title">Mobility for Everyone</h1>
+  <p class="subtitle">Choose the support you need. Unknown accessibility must be checked before travelling.</p>
+  <div class="grid2">
+    <div class="card">
+      <h2 class="section-title">Accessibility preferences</h2>
+      <div class="toggle-row"><div><b>Large text</b><small>Make headings, buttons and directions easier to read</small></div><input aria-label="Enable large text" id="toggleLarge" type="checkbox"/></div>
+      <div class="toggle-row"><div><b>Visual alerts</b><small>Show prominent ride and alighting reminders</small></div><input aria-label="Enable visual alerts" checked id="toggleVisual" type="checkbox"/></div>
+      <div class="toggle-row"><div><b>Voice prompts</b><small>Read destination reminders when speech is supported</small></div><input aria-label="Enable voice prompts" id="toggleVoice" type="checkbox"/></div>
+      <div class="toggle-row"><div><b>Less walking</b><small>Prefer less walking in the sample journey</small></div><input aria-label="Less walking" id="toggleLessWalk" type="checkbox"/></div>
+      <div class="toggle-row"><div><b>Extra transfer time</b><small>Allow more transfer time in the sample journey</small></div><input aria-label="Extra transfer time" id="toggleBuffer" type="checkbox"/></div>
+      <div class="divider"></div>
+      <button class="btn secondary full" data-go="results">View sample journey with my preferences →</button>
+    </div>
+    <div>
+      <div class="card">
+        <div class="section-head"><h2 class="section-title">Wheelchair access and assistance</h2><span class="badge grey">Request draft</span></div>
+        <p class="help">Prepare a request here, then contact the operator to check availability and book assistance.</p>
+        <div class="field" style="margin-top:15px"><label for="assistType">Assistance needed</label><select id="assistType"><option>Wheelchair-accessible vehicle information</option><option>Step-free journey</option><option>Boarding and alighting assistance</option></select></div>
+        <div class="field" style="margin-top:15px"><label for="assistNote">Additional details (optional)</label><textarea id="assistNote" placeholder="For example: please confirm ramp access and how to book assistance."></textarea></div>
+        <button class="btn full" id="prepareAssist" style="margin-top:18px">Prepare request draft</button>
+        <div class="note" id="assistDraft" role="status" style="display:none;margin-top:15px"></div>
+      </div>
+      <div class="card">
+        <h2 class="section-title">Check facility availability</h2>
+        <p class="help">Confirmed / Not Accessible / Unknown are separate states. Missing information does not confirm wheelchair access. Static facility data does not confirm that a lift is working now.</p>
+        <span class="badge warn">Sample scenario · Accessibility unknown</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="screen" id="lab">
+  <div class="eyebrow" data-i18n="lab.eyebrow">CITYPULSE · Research & Transparency</div>
+  <h1 class="h1" data-i18n="lab.title">ETA Reliability Lab</h1>
+  <p class="subtitle">Inspect collection progress and evaluation methods. Accuracy metrics will appear after independent observations and testing.</p>
+  <div class="evidence">
+    <div class="card"><div class="label">Independently observed arrivals</div><div class="metric" id="actualArrivals">Pending</div><small>Independent ground truth only; prediction snapshots are not observed arrivals.</small></div>
+    <div class="card"><div class="label">Official ETA MAE</div><div class="metric">—</div><small>Independent ground truth required</small></div>
+    <div class="card"><div class="label">Experimental model MAE</div><div class="metric">—</div><small>No correction results published</small></div>
+    <div class="card"><div class="label">Predictions within 3 min</div><div class="metric">—</div><small>Calculated on a shared test set</small></div>
+  </div>
+  <div class="card" style="margin-top:16px"><h2 class="section-title">Live collection status</h2><p class="help" id="labCapture">Checking snapshot collection…</p><p class="smallprint">Fresh arrival responses are stored with timestamps. Predictions alone cannot establish accuracy.</p></div>
+  <div class="grid2">
+    <div class="card">
+      <div class="section-head"><h2 class="section-title">Official and experimental estimates</h2><span class="badge grey">Awaiting validation data</span></div>
+      <div class="empty-chart">Planned: official prediction error against observed arrivals<br/>Hold-out comparison: official baseline, median correction and regression<br/><strong>No model improvement results available yet</strong></div>
+      <div class="divider"></div>
+      <div class="section-title" style="font-size:14px">Proposed metrics</div>
+      <div class="bar-row"><span>MAE / min</span><div class="bar"><div class="bar-inner" style="width:0%"></div></div><span>Pending</span></div>
+      <div class="bar-row"><span>≤ 3 min</span><div class="bar"><div class="bar-inner" style="width:0%"></div></div><span>Pending</span></div>
+      <div class="bar-row"><span>Interval coverage</span><div class="bar"><div class="bar-inner" style="width:0%"></div></div><span>Pending</span></div>
+      <div class="note">Corrected estimates require hold-out validation. Keep the official baseline if a model does not improve results.</div>
+    </div>
+    <div class="card">
+      <div class="section-head"><h2 class="section-title">CityPulse Data pipeline</h2><span class="badge">Design</span></div>
+      <div class="step-line"><div class="step-dot">1</div><div class="step-body"><strong>Official ETA snapshots</strong><p>GMB official API: routes, directions, stops, estimates and timestamps.</p></div></div>
+      <div class="step-line"><div class="step-dot">2</div><div class="step-body"><strong>Observed arrivals</strong><p>Record actual arrivals with synchronised clocks. Exclude and count ambiguous matches.</p></div></div>
+      <div class="step-line"><div class="step-dot">3</div><div class="step-body"><strong>Error analysis and baseline models</strong><p>Compare official estimates, median residual correction and Ridge regression before adding complexity.</p></div></div>
+      <div class="step-line"><div class="step-dot">4</div><div class="step-body" style="padding-bottom:0;border:0"><strong>Hold-out tests and fallback</strong><p>Track MAE, predictions within 3 minutes, sample size, source, freshness and availability.</p></div></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:19px">
+    <div class="section-head"><h2 class="section-title">Sources and evidence</h2><span class="badge grey">Source Governance</span></div>
+    <div class="grid3">
+      <div class="note"><b>Official data</b><br/>Transport Department GMB data and operator APIs</div>
+      <div class="note"><b>Team observations</b><br/>Observed arrivals, stop verification and hold-out tests</div>
+      <div class="note"><b>Community reports</b><br/>Review labels, duplicate checks and expiry; no overrides to official data.</div>
+    </div>
+  </div>
+</section>
+
+
+<section class="screen" id="more">
+  <div class="eyebrow" data-i18n="more.eyebrow">More Features</div>
+  <h1 class="h1" data-i18n="more.title">Other Tools & Info</h1>
+  <p class="subtitle">Ride reminders, live context and arrival reliability research.</p>
+  <div class="more-grid">
+    <button class="more-card" data-go="ride">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="14" height="13" rx="2"/><path d="M3 11h14"/><circle cx="6.5" cy="20.5" r="1.5"/><circle cx="13.5" cy="20.5" r="1.5"/></svg>
+      <b data-i18n="more.ride">Ride Mode</b>
+      <small data-i18n="more.rideSub">Stop sequence & alight reminder</small>
+    </button>
+    <button class="more-card" data-go="live">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.2" y1="10.2" x2="5.6" y2="11.6"/><line x1="19.8" y1="10.2" x2="18.4" y2="11.6"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/></svg>
+      <b data-i18n="more.live">Real-time Info</b>
+      <small data-i18n="more.liveSub">HKO weather + MTR schedule</small>
+    </button>
+    <button class="more-card" data-go="lab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v6.5L4 18a2 2 0 0 0 1.7 3h12.6a2 2 0 0 0 1.7-3L14 8.5V2"/><path d="M8.5 2h7"/><line x1="7" y1="14" x2="17" y2="14"/></svg>
+      <b data-i18n="more.lab">ETA Lab</b>
+      <small data-i18n="more.labSub">ETA reliability research</small>
+    </button>
+    <button class="more-card" data-go="access">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.2"/><path d="M5 9h14M9 9v5l-2 7M15 9v5l2 7M12 14v6"/></svg>
+      <b data-i18n="more.access">Accessibility</b>
+      <small data-i18n="more.accessSub">Large text / Voice / Facilities</small>
+    </button>
+  </div>
+</section>
+
+<div class="foot" data-i18n="foot.note">HKOnTransit × CityPulse · Hack4SDG Prototype · Official arrivals are labelled separately from sample journeys and local reports.<br/>Check official operating information and conditions on site before travelling.</div>
+
+</main>
+
+
+<nav aria-label="Main navigation" class="bottom-nav">
+  <button class="active" data-screen="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H15a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h6.5"/></svg><span data-i18n="nav.plan">Plan</span></button>
+  <button data-screen="boarding"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg><span data-i18n="nav.query">Query</span></button>
+  <button data-screen="report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V4s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg><span data-i18n="nav.report">Report</span></button>
+  <button data-screen="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg><span data-i18n="nav.more">More</span></button>
+</nav>
+
+</div>
+
+<div aria-live="polite" class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+'use strict';
+const screens=['home','results','boarding','ride','report','access','lab','live','more'];
+const titles={home:'Journey Planner',results:'Routes',boarding:'Boarding',ride:'Ride Mode',report:'Report',access:'Accessibility',lab:'ETA Lab',live:'Real-time Info',more:'More'};
+const $=(id)=>document.getElementById(id);
+function navigate(name){
+  if(!screens.includes(name))return;
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id===name));
+  document.querySelectorAll('[data-screen]').forEach(b=>b.classList.toggle('active',b.dataset.screen===name));
+  const bc=$('breadcrumb'); if(bc) bc.textContent=titles[name];
+  window.scrollTo({top:0,behavior:'instant'});
+}
+document.querySelectorAll('[data-screen]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.screen)));
+document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>navigate(b.dataset.go)));
+let toastTimer;
+function notify(msg){const t=$('toast');t.textContent=msg;t.classList.add('active');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('active'),4200)}
+window.__hk_notify=notify;
+
+/* Chips */
+$('prefFast').addEventListener('click',()=>{['prefFast','prefWalk','prefTransfer'].forEach(x=>$(x).classList.toggle('active',x==='prefFast'));notify('Faster selected for the sample journey.')});
+$('prefWalk').addEventListener('click',()=>{['prefFast','prefWalk','prefTransfer'].forEach(x=>$(x).classList.toggle('active',x==='prefWalk'));$('toggleLessWalk').checked=true;notify('Less walking selected for the sample journey.')});
+$('prefTransfer').addEventListener('click',()=>{['prefFast','prefWalk','prefTransfer'].forEach(x=>$(x).classList.toggle('active',x==='prefTransfer'));notify('Fewer transfers selected for the sample journey.')});
+$('altRouteBtn').addEventListener('click',()=>notify('This alternative is a sample, not a verified live journey.'));
+
+/* Accessibility */
+function setLarge(on){document.body.classList.toggle('theme-large',on);$('toggleLarge').checked=on}
+$('toggleLarge').addEventListener('change',e=>setLarge(e.target.checked));
+$('toggleLessWalk').addEventListener('change',e=>notify(e.target.checked?'Less walking enabled for the sample journey.':'Less walking disabled.'));
+$('toggleBuffer').addEventListener('change',e=>notify(e.target.checked?'Extra transfer time enabled for the sample journey.':'Extra transfer time disabled.'));
+
+/* Ride mode */
+let rideIndex=-1;let stops=['Stop 02 · Boarding stop','Stop 03','Stop 04','Stop 05 · Destination'];
+function escapeText(value){return String(value).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function refreshRide(){const started=rideIndex>=0;$('rideActiveTag').textContent=started?'DEMO RIDE IN PROGRESS':'WAITING FOR USER CONFIRMATION';$('rideHeadline').textContent=started?stops[rideIndex]:'Ride not started';$('rideSub').textContent=!started?'Select Boarded to start a sample ride.':rideIndex>=stops.length-1?'Sample destination reached. Check your actual location before alighting.':`Stop ${rideIndex+1} / ${stops.length}. Next: ${stops[rideIndex+1]}`;$('alightStatus').textContent=rideIndex>=Math.max(0,stops.length-2)?'⚠️ Approaching your destination in this simulation. Notify the driver in advance. This reminder is not linked to live location.':rideIndex>=0?'Simulation in progress. Confirm the actual vehicle direction and location yourself.':'A reminder appears near the destination in this simulation. Notify the driver yourself.';$('stopTimeline').innerHTML=stops.map((s,i)=>`<li class="${i<rideIndex?'passed':i===rideIndex?'current':i===stops.length-1?'destination':''}"><div><strong>${escapeText(s)}</strong><small>${i<rideIndex?'Passed (simulation)':i===rideIndex?'Current simulated stop':i===stops.length-1?'Destination':'Upcoming'}</small></div></li>`).join('');$('nextStop').disabled=rideIndex<0||rideIndex>=stops.length-1;}
+$('startRide').addEventListener('click',()=>{rideIndex=0;refreshRide();navigate('ride');notify('Ride simulation started. Check your actual location yourself.')});
+$('boardNow').addEventListener('click',()=>{rideIndex=0;refreshRide();navigate('ride');notify('Ride simulation started.')});
+$('nextStop').addEventListener('click',()=>{if(rideIndex<0)return notify('Confirm that you have boarded first.');rideIndex=Math.min(stops.length-1,rideIndex+1);refreshRide();if(rideIndex>=Math.max(0,stops.length-2)){notify('Near destination (simulation). Notify the driver in advance.');if($('toggleVoice').checked)speak('Approaching your destination. Please notify the driver.')}});
+function speak(text){if(!('speechSynthesis' in window))return notify('Speech is not supported in this browser.');const u=new SpeechSynthesisUtterance(text);u.lang='en-GB';window.speechSynthesis.cancel();window.speechSynthesis.speak(u)}
+$('speakBtn').addEventListener('click',()=>speak(rideIndex>=Math.max(0,stops.length-2)?'Approaching your destination. Please notify the driver.':'This is a sample ride reminder.'));
+
+/* Report */
+$('eventTime').value=(()=>{const d=new Date();const local=new Date(d.getTime()-d.getTimezoneOffset()*60000);return local.toISOString().slice(0,16)})();
+let reports=[];
+$('submitReport').addEventListener('click',()=>{const route=$('reportRoute').value.trim(),stop=$('reportStop').value.trim(),eventAt=$('eventTime').value;if(!route||!stop||!eventAt)return notify('Enter the route, stop and observation time.');const ev={id:reports.length+1,type:$('eventType').selectedOptions[0].textContent,route,stop,eventAt,submittedAt:new Date().toISOString(),note:$('reportDesc').value};reports.unshift(ev);$('reportCount').textContent=`${reports.length} ${reports.length===1?'report':'reports'}`;$('reportList').className='';$('reportList').replaceChildren(...reports.map(x=>{const div=document.createElement('div');div.className='note';div.style.marginBottom='9px';const title=document.createElement('strong');title.textContent=`${x.type} · ${x.stop}`;div.append(title,document.createElement('br'));const sm=document.createElement('small');sm.textContent=`${x.eventAt.replace('T',' ')} · Unverified · This page only`;div.append(sm);return div}));$('reportDesc').value='';notify('Added to this page as Unverified. The report has not been sent or published.')});
+$('prepareAssist').addEventListener('click',()=>{const el=$('assistDraft');el.style.display='block';el.replaceChildren();const h=document.createElement('strong');h.textContent='Assistance request draft · Not submitted';const body=document.createElement('p');body.textContent=`Request: ${$('assistType').value}. ${$('assistNote').value.trim()} No booking has been made. Contact the operator through official channels to check availability.`;el.append(h,body);notify('Draft ready. It has not been sent to an operator.')});
+window.configureRideStops=(selected)=>{if(Array.isArray(selected)&&selected.length>=2){stops=selected;rideIndex=-1;refreshRide();}};
+refreshRide();
+})();
+
+/* ===== i18n + topbar buttons (deferred: needs i18n.js loaded first) ===== */
+document.addEventListener('DOMContentLoaded',()=>{
+  /* Init i18n */
+  if(window.i18n) i18n.init();
+  /* Language dropdown: click opens menu with TC/SC/En choices */
+  const langDropdown=document.getElementById('langDropdown');
+  const langBtn=document.getElementById('langBtn');
+  const langMenu=document.getElementById('langMenu');
+  function updateLangMenu(){
+    const cur=window.i18n?.current||'zhHK';
+    langMenu.querySelectorAll('[data-lang]').forEach(b=>b.classList.toggle('active',b.dataset.lang===cur));
+  }
+  langBtn.addEventListener('click',e=>{
+    e.stopPropagation();
+    if(!window.i18n)return;
+    const open=!langMenu.hidden;
+    langMenu.hidden=open;
+    langBtn.setAttribute('aria-expanded',String(!open));
+    if(!open)updateLangMenu();
+  });
+  document.addEventListener('click',e=>{
+    if(!langDropdown.contains(e.target)){langMenu.hidden=true;langBtn.setAttribute('aria-expanded','false');}
+  });
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){langMenu.hidden=true;langBtn.setAttribute('aria-expanded','false');}
+  });
+  langMenu.querySelectorAll('[data-lang]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const lang=btn.dataset.lang;
+      if(window.i18n){
+        i18n.set(lang);
+        const labels={en:'English'};
+        window.__hk_notify?.(`Language: ${labels[lang]||lang}`);
+      }
+      langMenu.hidden=true;
+      langBtn.setAttribute('aria-expanded','false');
+    });
+  });
+  /* Accessibility button: navigate to access screen */
+  document.getElementById('accessBtn').addEventListener('click',()=>{
+    const nav=document.querySelector('[data-screen]')?.classList;
+    document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id==='access'));
+    document.querySelectorAll('[data-screen]').forEach(b=>b.classList.toggle('active',b.dataset.screen==='access'));
+    window.scrollTo({top:0,behavior:'instant'});
+  });
+});
+</script>
+<script defer src="/assets/i18n.js"></script>
+<script defer src="/assets/network.js"></script>
+<script defer src="/assets/live.js"></script>
+<script defer src="/assets/ai.js"></script>
+<script defer src="/assets/connections.js"></script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+[
+  {
+    "path": "/api/ai/interpret-preferences",
+    "http_status": 200,
+    "seconds": 0.003,
+    "status": null,
+    "error": null
+  },
+  {
+    "path": "/api/bus/ctb/stops?route=1&direction=inbound",
+    "http_status": 200,
+    "seconds": 3.512,
+    "status": null,
+    "error": null
+  },
+  {
+    "path": "/api/weather",
+    "http_status": 200,
+    "seconds": 3.82,
+    "status": null,
+    "error": null
+  },
+  {
+    "path": "/api/bus/ctb/stop/002403",
+    "http_status": 200,
+    "seconds": 0.356,
+    "status": null,
+    "error": null
+  },
+  {
+    "path": "/api/gmb/routes/HKI",
+    "http_status": 200,
+    "seconds": 4.303,
+    "status": null,
+    "error": null
+  },
+  {
+    "path": "/api/mtr/next-train?line=TKL&station=TKO",
+    "http_status": 200,
+    "seconds": 4.6,
+    "status": "fresh",
+    "error": null
+  },
+  {
+    "path": "/api/bus/kmb/stops?route=1A&direction=outbound",
+    "http_status": 200,
+    "seconds": 5.443,
+    "status": null,
+    "error": null
+  },
+  {
+    "path": "/api/bus/kmb/stop/A3ADFCDF8487ADB9",
+    "http_status": 200,
+    "seconds": 0.786,
+    "status": null,
+    "error": null
+  },
+  {
+    "path": "/api/bus/ctb/eta?route=1&stop_id=002403&direction=inbound",
+    "http_status": 200,
+    "seconds": 3.794,
+    "status": "fresh",
+    "error": null
+  },
+  {
+    "path": "/api/bus/kmb/eta?route=1A&stop_id=A3ADFCDF8487ADB9&direction=outbound",
+    "http_status": 200,
+    "seconds": 2.661,
+    "status": "fresh",
+    "error": null
+  },
+  {
+    "path": "/api/gmb/route/HKI/69",
+    "http_status": 200,
+    "seconds": 4.076,
+    "status": null,
+    "error": null
+  },
+  {
+    "path": "/api/gmb/stops/2000410/1",
+    "http_status": 200,
+    "seconds": 0.784,
+    "status": null,
+    "error": null
+  },
+  {
+    "path": "/api/gmb/stop/20003337",
+    "http_status": 200,
+    "seconds": 0.331,
+    "status": null,
+    "error": null
+  },
+  {
+    "path": "/api/gmb/eta/2000410/1/1",
+    "http_status": 200,
+    "seconds": 3.379,
+    "status": "fresh",
+    "error": null
+  },
+  {
+    "path": "/api/lab/summary",
+    "http_status": 200,
+    "seconds": 0.002,
+    "status": null,
+    "error": null
+  },
+  {
+    "path": "/api/diagnostics",
+    "http_status": 200,
+    "seconds": 3.569,
+    "status": null,
+    "error": null
+  }
+]

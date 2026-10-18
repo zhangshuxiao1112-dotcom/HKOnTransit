@@ -1,0 +1,41 @@
+{
+  "checked_at": "2026-10-18T01:38:04.169692+00:00",
+  "providers": [
+    {
+      "provider": "GMB",
+      "connection": "ok",
+      "elapsed_ms": 3849,
+      "generated_at": "2026-10-18T09:37:59.383+08:00"
+    },
+    {
+      "provider": "KMB",
+      "connection": "ok",
+      "elapsed_ms": 4023,
+      "generated_at": "2026-10-18T09:37:59+08:00"
+    },
+    {
+      "provider": "Citybus",
+      "connection": "ok",
+      "elapsed_ms": 3252,
+      "generated_at": "2026-10-18T09:37:15+08:00"
+    },
+    {
+      "provider": "MTR",
+      "connection": "ok",
+      "elapsed_ms": 4023,
+      "generated_at": "2026-10-18 09:37:44"
+    },
+    {
+      "provider": "HKO",
+      "connection": "ok",
+      "elapsed_ms": 8485,
+      "generated_at": "2026-10-18T09:02:00+08:00"
+    }
+  ],
+  "all_connected": true,
+  "ai_provider": "mock",
+  "network_mode": "system-proxy",
+  "tls_trust": "system-and-certifi",
+  "tls_verification": true,
+  "request_budget_seconds": 10.5
+}

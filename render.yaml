@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: hkontransit
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m uvicorn server:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: HKONTRANSIT_AI_PROVIDER
+        value: mock
+      - key: HKONTRANSIT_NETWORK_MODE
+        value: system
+      - key: HKONTRANSIT_DB
+        value: /tmp/hkontransit.sqlite3

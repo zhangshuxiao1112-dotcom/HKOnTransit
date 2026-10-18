@@ -1,0 +1,130 @@
+[
+  {
+    "path": "/api/ai/interpret-preferences",
+    "http_status": 200,
+    "seconds": 0.005,
+    "status": null,
+    "error": null,
+    "contains_chinese": false
+  },
+  {
+    "path": "/api/mtr/next-train?line=TKL&station=TKO",
+    "http_status": 200,
+    "seconds": 4.05,
+    "status": "fresh",
+    "error": null,
+    "contains_chinese": false
+  },
+  {
+    "path": "/api/bus/ctb/stops?route=1&direction=inbound",
+    "http_status": 200,
+    "seconds": 4.055,
+    "status": null,
+    "error": null,
+    "contains_chinese": false
+  },
+  {
+    "path": "/api/bus/ctb/stop/002403",
+    "http_status": 200,
+    "seconds": 0.419,
+    "status": null,
+    "error": null,
+    "contains_chinese": false
+  },
+  {
+    "path": "/api/bus/ctb/eta?route=1&stop_id=002403&direction=inbound",
+    "http_status": 200,
+    "seconds": 0.462,
+    "status": "fresh",
+    "error": null,
+    "contains_chinese": false
+  },
+  {
+    "path": "/api/gmb/routes/HKI",
+    "http_status": 200,
+    "seconds": 4.792,
+    "status": null,
+    "error": null,
+    "contains_chinese": false
+  },
+  {
+    "path": "/api/weather",
+    "http_status": 200,
+    "seconds": 4.803,
+    "status": null,
+    "error": null,
+    "contains_chinese": false
+  },
+  {
+    "path": "/api/gmb/route/HKI/69",
+    "http_status": 200,
+    "seconds": 0.309,
+    "status": null,
+    "error": null,
+    "contains_chinese": false
+  },
+  {
+    "path": "/api/gmb/stops/2000410/1",
+    "http_status": 200,
+    "seconds": 0.496,
+    "status": null,
+    "error": null,
+    "contains_chinese": false
+  },
+  {
+    "path": "/api/gmb/stop/20003337",
+    "http_status": 200,
+    "seconds": 0.272,
+    "status": null,
+    "error": null,
+    "contains_chinese": false
+  },
+  {
+    "path": "/api/bus/kmb/stops?route=1A&direction=outbound",
+    "http_status": 200,
+    "seconds": 6.169,
+    "status": null,
+    "error": null,
+    "contains_chinese": false
+  },
+  {
+    "path": "/api/bus/kmb/stop/A3ADFCDF8487ADB9",
+    "http_status": 200,
+    "seconds": 0.294,
+    "status": null,
+    "error": null,
+    "contains_chinese": false
+  },
+  {
+    "path": "/api/gmb/eta/2000410/1/1",
+    "http_status": 200,
+    "seconds": 3.272,
+    "status": "fresh",
+    "error": null,
+    "contains_chinese": false
+  },
+  {
+    "path": "/api/bus/kmb/eta?route=1A&stop_id=A3ADFCDF8487ADB9&direction=outbound",
+    "http_status": 200,
+    "seconds": 3.582,
+    "status": "fresh",
+    "error": null,
+    "contains_chinese": false
+  },
+  {
+    "path": "/api/lab/summary",
+    "http_status": 200,
+    "seconds": 0.002,
+    "status": null,
+    "error": null,
+    "contains_chinese": false
+  },
+  {
+    "path": "/api/diagnostics",
+    "http_status": 200,
+    "seconds": 4.396,
+    "status": null,
+    "error": null,
+    "contains_chinese": false
+  }
+]

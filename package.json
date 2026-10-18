@@ -1,0 +1,10 @@
+{
+  "name": "hkontransit-ui-checks",
+  "private": true,
+  "scripts": {
+    "test:dom": "node tests/ui_dom_smoke.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "30.1.3"
+  }
+}

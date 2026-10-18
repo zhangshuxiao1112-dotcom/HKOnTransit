@@ -1,0 +1,20 @@
+# HKOnTransit Python dependencies
+# Install: pip install -r requirements.txt  (or run ./run.sh)
+# Python 3.10+ required.
+#
+# fastapi  — web framework for the API gateway (server.py, ai/router.py)
+# uvicorn  — ASGI server to run FastAPI (launched by run.sh)
+# httpx    — async HTTP client for proxying upstream transport APIs
+# pydantic — data validation for request/response schemas (ai/schemas.py)
+# pytest   — test runner for tests/test_api.py
+fastapi>=0.110,<1
+uvicorn>=0.29,<1
+httpx[socks]>=0.27,<1
+pydantic>=2,<3
+pytest>=8,<10
+
+python-dotenv>=1,<2
+
+# Native macOS/Windows/Linux certificate trust; TLS verification stays enabled.
+truststore>=0.10,<1
+certifi>=2024.2.2
